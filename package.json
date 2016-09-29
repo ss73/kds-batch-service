@@ -1,0 +1,19 @@
+{
+  "name": "batch_service",
+  "version": "1.0.0",
+  "description": "A batch service to orchestrate background tasks",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ss73/kds-batch-service.git"
+  },
+  "author": "Stellan Söderström",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ss73/kds-batch-service/issues"
+  },
+  "homepage": "https://github.com/ss73/kds-batch-service#readme"
+}
