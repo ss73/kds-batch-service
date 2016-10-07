@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/ss73/kds-batch-service/issues"
   },
-  "homepage": "https://github.com/ss73/kds-batch-service#readme"
+  "homepage": "https://github.com/ss73/kds-batch-service#readme",
+  "dependencies": {
+    "express": "^4.14.0"
+  }
 }
