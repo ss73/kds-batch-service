@@ -1,0 +1,41 @@
+<html>
+    <head>
+        <title>
+            Batch service
+        </title>
+    </head>
+    <body>
+        <h1>Batch Service</h1>
+        <p>
+            This service performs a number of orchestration activities
+            when it is triggered. The idea is to set up a cron job that
+            periodically runs curl in order to initiate the batch flow 
+        </p>
+        <h2>Endpoints</h2>
+        <h3>/</h3>
+        This information page.
+        <h3>/run</h3>
+        <p>
+            The service performs the following steps:
+            <ol>
+                <li>Load the time stamp from the previous run. Remember 'current time'</li>
+                <li>Get PDF files newer than [time stamp] from the web application</li>
+                <li>Convert the PDF to plain text using the convert service</li>
+                <li>Compute an MD5 checksum from the text. This is used as document ID.</li>
+                <li>Create a JSON document, {
+                    id = [MD5 checksum as hex string], 
+                    title = [file name],
+                    content = [plain text content]
+                    }</li>
+                <li>Post the JSON document to the /upload endpoint of the index service</li>
+                <li>Create a new JSON document, {
+                    name = [MD5 checksum as hex string],
+                    content = [Base 64 representation of the PDF file]
+                    }</li>
+                <li>Post the JSON document to the /store endpoint of the blob service</li>
+                <li>Ask the web app to remove all files older than [time stamp]</li>
+                <li>Save [current time] as recorded in the beginning and store as [time stamp]</li>
+            </ol>
+        </p>
+    </body>
+</html>
