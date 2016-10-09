@@ -18,7 +18,7 @@ var indexsvc_env = {
     port : process.env.INDEXSVC_PORT_3000_TCP_PORT || 32600 };
 var blobsvc_env = {
     host : process.env.BLOBSVC_PORT_3000_TCP_ADDR || "localhost", 
-    port : process.env.BLOBSVC_PORT_3000_TCP_PORT || 32600 };
+    port : process.env.BLOBSVC_PORT_3000_TCP_PORT || 32500 };
 
 app.get('/', function (req, res) {
     res.sendFile(path.join(__dirname, 'views/info.html'));
@@ -50,8 +50,10 @@ app.get('/run', function(req, res) {
     // Load the time stamp from the previous run. Remember 'current time'
     var current_time = Date.now();
     var mtime = new Date(0);
+    var starttime = Date.now();
+    var timefile = path.join(__dirname, 'tmp', '.timestamp');
     try {
-        mtime = Date.parse(fs.statSync(path.join(__dirname, 'tmp', '.timestamp')).mtime);
+        mtime = Date.parse(fs.statSync(timefile).mtime);
         console.log("Last successful run at: " + mtime);
     } catch(err) {
         console.log("Could not read timestamp file, using: " + mtime);
@@ -110,7 +112,19 @@ app.get('/run', function(req, res) {
                         var blobclient = jsonrequest.createClient('http://' + blobsvc_env.host + ':' + blobsvc_env.port + '/');
                         blobclient.post('/store', blobfile , function(err, svcres, body) {
                             if(err) return console.log("Blob store error: " + err);
-                            console.log("Blob service response: " + body);
+                            console.log("Blob service updated with id: " + blobfile.name);
+                            // Cleanup
+                            fs.unlink(txtfilepath, function (err){
+                                if(err) return console.log("Failed to delete: " +err);
+                                fs.unlink(docfilepath, function(err){
+                                    if(err) return console.log("Filed to delete: " + err);
+                                    // Store timestamp
+                                    fs.utimes(timefile, starttime, starttime, function(err) {
+                                        if(err) return console.log("Filed to update timestamp: " + err);
+                                        res.send();
+                                    });
+                                });
+                            });
                         });
                     });
                 });
