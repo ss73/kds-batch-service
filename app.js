@@ -26,23 +26,25 @@ app.get('/', function (req, res) {
 
 app.get('/run', function(req, res) {
     /*
-     Load the time stamp from the previous run. Remember 'current time'
-     Get PDF files newer than [time stamp] from the web application
-     Convert the PDF to plain text using the convert service
-     Compute an MD5 checksum from the text. This is used as document ID.
-     Create a JSON document, {
+     1. Load the time stamp from the previous run. Remember 'current time'
+     2. Get PDF files newer than [time stamp] from the web application
+     3. Convert the PDF to plain text using the convert service
+     4. Compute an MD5 checksum from the text. This is used as document ID.
+     5. Create a JSON document, {
                     id = [MD5 checksum as hex string], 
                     title = [file name],
                     content = [plain text content]
                     }
-     Post the JSON document to the /upload endpoint of the index service
-     Create a new JSON document, {
+        Post the JSON document to the /upload endpoint of the index service
+
+     6. Create a new JSON document, {
                     name = [MD5 checksum as hex string],
                     content = [Base 64 representation of the PDF file]
                     }
-     Post the JSON document to the /store endpoint of the blob service
-     Ask the web app to remove all files older than [time stamp]
-     Save [current time] as recorded in the beginning and store as [time stamp]
+        Post the JSON document to the /store endpoint of the blob service
+     
+     7. Ask the web app to remove all files older than [time stamp]
+     8. Save [current time] as recorded in the beginning and store as [time stamp]
     */
 
     // Load the time stamp from the previous run. Remember 'current time'
@@ -60,7 +62,8 @@ app.get('/run', function(req, res) {
     client.get('service/uploads' , function(err, svcres, body) {
         console.log(body);
         for(i in body) {
-            console.log(body[i].name);
+            var documenttitle = body[i].name;
+            console.log(documenttitle);
             var docurl = 'http://' + webapp_env.host + ':' + webapp_env.port + '/service/uploads/' + encodeURIComponent(body[i].name);
             var convurl = 'http://' + convsvc_env.host + ':' + convsvc_env.port + '/convert';
             var docfile = md5(docurl);
@@ -78,19 +81,27 @@ app.get('/run', function(req, res) {
                 .pipe(docfilestream);
             docfilestream.on('finish', function() {
                 // Convert the PDF to plain text using the convert service
-                console.log("Written");
-                var sourcestream = fs.createReadStream(docfilepath);
-                sourcestream.pipe(
-                    request
-                    .post(convurl)
-                    .on('response', function(response) {
-                        console.log("Content type: " + response.headers['content-type']);
-                    })
-                    .pipe(txtfilestream)
-                );
+                console.log("Written PDF file");
+                var formdata = {
+                    // Convert service form expects the file in parameter 'pdffile'
+                    pdffile : fs.createReadStream(docfilepath)
+                };
+                request.post({url : convurl, formData : formdata}).pipe(txtfilestream);
             });
             txtfilestream.on('finish', function() {
-                console.log("Textfile written")
+                console.log("Textfile written");
+                fs.readFile(txtfilepath, function (err,data) {
+                    if(err) return console.log(err);
+                    var indexfile = { 
+                        id: md5(data),
+                        title: documenttitle,
+                        content: new String(data)};
+                    console.log(indexfile.title);
+                    var indexclient = jsonrequest.createClient('http://' + indexsvc_env.host + ':' + indexsvc_env.port + '/');
+                    indexclient.post('/upload', indexfile , function(err, svcres, body) {
+                        console.log("Index service response: " + body);
+                    });
+                });
             });
         }
     });
