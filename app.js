@@ -50,10 +50,10 @@ app.get('/run', function(req, res) {
     // Load the time stamp from the previous run. Remember 'current time'
     var current_time = Date.now();
     var mtime = new Date(0);
-    var starttime = Date.now();
+    var starttime = new Date();
     var timefile = path.join(__dirname, 'tmp', '.timestamp');
     try {
-        mtime = Date.parse(fs.statSync(timefile).mtime);
+        mtime = new Date((fs.statSync(timefile)).mtime);
         console.log("Last successful run at: " + mtime);
     } catch(err) {
         console.log("Could not read timestamp file, using: " + mtime);
