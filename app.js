@@ -64,7 +64,10 @@ app.get('/run', function(req, res) {
             var docurl = 'http://' + webapp_env.host + ':' + webapp_env.port + '/service/uploads/' + encodeURIComponent(body[i].name);
             var convurl = 'http://' + convsvc_env.host + ':' + convsvc_env.port + '/convert';
             var docfile = md5(docurl);
-            var filestream = fs.createWriteStream(path.join(__dirname, 'tmp', docfile));
+            var docfilepath = path.join(__dirname, 'tmp', docfile);
+            var txtfilepath = path.join(__dirname, 'tmp', docfile + '_');
+            var docfilestream = fs.createWriteStream(docfilepath);
+            var txtfilestream = fs.createWriteStream(txtfilepath);
             request
                 .get(docurl)
                 .on('response', function(response) {
@@ -72,13 +75,25 @@ app.get('/run', function(req, res) {
                     console.log("File service response status: " + response.statusCode);
                     console.log("Content type: " + response.headers['content-type']);
                 })
-                .pipe(filestream);
-            filestream.on('finish', function() {
+                .pipe(docfilestream);
+            docfilestream.on('finish', function() {
+                // Convert the PDF to plain text using the convert service
                 console.log("Written");
+                var sourcestream = fs.createReadStream(docfilepath);
+                sourcestream.pipe(
+                    request
+                    .post(convurl)
+                    .on('response', function(response) {
+                        console.log("Content type: " + response.headers['content-type']);
+                    })
+                    .pipe(txtfilestream)
+                );
+            });
+            txtfilestream.on('finish', function() {
+                console.log("Textfile written")
             });
         }
     });
-
 
 });
 
