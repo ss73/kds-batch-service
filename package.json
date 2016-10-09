@@ -19,6 +19,7 @@
   "dependencies": {
     "express": "^4.14.0",
     "md5": "^2.2.1",
+    "node-libcurl": "^1.0.0",
     "request-json": "^0.6.1"
   }
 }
