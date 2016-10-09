@@ -121,7 +121,14 @@ app.get('/run', function(req, res) {
                                     // Store timestamp
                                     fs.utimes(timefile, starttime, starttime, function(err) {
                                         if(err) return console.log("Filed to update timestamp: " + err);
+                                        // Remove processed site docs
+                                        var cleanupurl = 'http://' + webapp_env.host + ':' + webapp_env.port + '/service/cleanup/' + encodeURIComponent(starttime);
+                                        request
+                                        .get(cleanupurl)
+                                        .on('response', function(response) {
+                                                console.log("Cleanup response status: " + response.statusCode);
                                         res.send();
+                                        });
                                     });
                                 });
                             });
@@ -135,6 +142,6 @@ app.get('/run', function(req, res) {
 });
 
 
-app.listen(3000, function () {
-    console.log('Batch service listening on port 3000!');
+app.listen(32700, function () {
+    console.log('Batch service listening on port 32700');
 });
