@@ -101,6 +101,18 @@ app.get('/run', function(req, res) {
                     indexclient.post('/upload', indexfile , function(err, svcres, body) {
                         console.log("Index service response: " + body);
                     });
+                    fs.readFile(docfilepath, function(err, data) {
+                        if(err) return console.log("Docfile error: " + err);
+                        var blobfile = {
+                            name: indexfile.id,
+                            content: data.toString('base64') 
+                        };
+                        var blobclient = jsonrequest.createClient('http://' + blobsvc_env.host + ':' + blobsvc_env.port + '/');
+                        blobclient.post('/store', blobfile , function(err, svcres, body) {
+                            if(err) return console.log("Blob store error: " + err);
+                            console.log("Blob service response: " + body);
+                        });
+                    });
                 });
             });
         }
