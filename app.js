@@ -8,17 +8,17 @@ var request = require('request');
 var md5 = require('md5');
 
 var webapp_env = {
-    host : process.env.WEBAPP_PORT_3000_TCP_ADDR || "localhost", 
-    port : process.env.WEBAPP_PORT_3000_TCP_PORT || 32000 };
+    host : process.env.WEBAPP_PORT_32000_TCP_ADDR || "localhost", 
+    port : process.env.WEBAPP_PORT_32000_TCP_PORT || 32000 };
 var convsvc_env = {
-    host : process.env.CONVSVC_PORT_3000_TCP_ADDR || "localhost", 
-    port : process.env.CONVSVC_PORT_3000_TCP_PORT || 32400 };
+    host : process.env.CONVSVC_PORT_32400_TCP_ADDR || "localhost", 
+    port : process.env.CONVSVC_PORT_32400_TCP_PORT || 32400 };
 var indexsvc_env = {
-    host : process.env.INDEXSVC_PORT_3000_TCP_ADDR || "localhost", 
-    port : process.env.INDEXSVC_PORT_3000_TCP_PORT || 32600 };
+    host : process.env.INDEXSVC_PORT_32600_TCP_ADDR || "localhost", 
+    port : process.env.INDEXSVC_PORT_32600_TCP_PORT || 32600 };
 var blobsvc_env = {
-    host : process.env.BLOBSVC_PORT_3000_TCP_ADDR || "localhost", 
-    port : process.env.BLOBSVC_PORT_3000_TCP_PORT || 32500 };
+    host : process.env.BLOBSVC_PORT_32500_TCP_ADDR || "localhost", 
+    port : process.env.BLOBSVC_PORT_32500_TCP_PORT || 32500 };
 
 app.get('/', function (req, res) {
     res.sendFile(path.join(__dirname, 'views/info.html'));
