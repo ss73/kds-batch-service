@@ -52,17 +52,18 @@ app.get('/run', function(req, res) {
     var mtime = new Date(0);
     var starttime = new Date();
     var timefile = path.join(__dirname, 'tmp', '.timestamp');
+    logwrite("Running at: " + starttime + "\n", res);
     try {
         mtime = new Date((fs.statSync(timefile)).mtime);
-        console.log("Last successful run at: " + mtime);
+        logwrite("Last successful run at: " + mtime, res);
     } catch(err) {
-        console.log("Could not read timestamp file, using: " + mtime);
+        logwrite("Could not read timestamp file, using: " + mtime, res);
     }
 
     // Get PDF files newer than [time stamp] from the web application
     var client = jsonrequest.createClient('http://' + webapp_env.host + ':' + webapp_env.port + '/');
     client.get('service/uploads' , function(err, svcres, body) {
-        console.log(body);
+        logwrite("Uploads: " + body, res);
         for(i in body) {
             var documenttitle = body[i].name;
             console.log(documenttitle);
@@ -127,7 +128,6 @@ app.get('/run', function(req, res) {
                                         .get(cleanupurl)
                                         .on('response', function(response) {
                                                 console.log("Cleanup response status: " + response.statusCode);
-                                        res.send();
                                         });
                                     });
                                 });
@@ -137,9 +137,14 @@ app.get('/run', function(req, res) {
                 });
             });
         }
+        res.send();
     });
-
 });
+
+function logwrite(message, httpresponse) {
+    console.log(message);
+    httpresponse.write(message + "\n");
+}
 
 
 app.listen(32700, function () {
