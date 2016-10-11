@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/ss73/kds-batch-service#readme",
   "dependencies": {
+    "async": "^2.0.1",
     "express": "^4.14.0",
     "md5": "^2.2.1",
     "request-json": "^0.6.1"
