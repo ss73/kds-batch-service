@@ -69,7 +69,7 @@ app.get('/run', function (req, res) {
     async.waterfall([
         getFileList,                // Get list of uploaded files from web application (JSON array of file names)
         processFileList,            // Process the list of files
-        async.constant(mtime),      // Async utility method to pass argument
+        async.constant(starttime),  // Async utility method to pass argument
         cleanup
     ], function (err) {
         if (err) {
@@ -176,7 +176,7 @@ function updateIndex(indexrecord, tempname, callback) {
             console.log("Index service error: " + err);
         }
         console.log("Index service response: " + body);
-        callback(null, indexrecord.id, tempname);
+        callback(err, indexrecord.id, tempname);
     });
 }
 
@@ -217,7 +217,7 @@ function cleanupTempFiles(tempname, callback) {
 }
 
 function cleanup(starttime, callback) {
-    console.log("Cleanup");
+    console.log("Cleanup, using start time: " + starttime);
     // Store timestamp
     var timefile = path.join(__dirname, 'tmp', '.timestamp');
     fs.utimes(timefile, starttime, starttime, function (err) {
